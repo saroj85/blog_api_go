@@ -10,9 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"github.com/saroj85/blog_api_go/pkg/config"
 	"github.com/saroj85/blog_api_go/pkg/controllers"
-	"github.com/saroj85/blog_api_go/pkg/routes"
 	"github.com/saroj85/blog_api_go/pkg/utils"
 )
 
@@ -25,8 +23,11 @@ func goDotEnvVariable(key string) string {
 	return os.Getenv(key)
 }
 
-func HomeHandler(response http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(response, "Hello home")
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Hello home")
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode("Welocme to the blog Api")
+
 }
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -80,14 +81,15 @@ func main() {
 
 	fmt.Println("App Initialized")
 
-	arrayOpr()
 	r := mux.NewRouter()
-	routes.RegisterPostRoutes(r)
-	routes.RegisterUserRoutes(r)
-	routes.RegisterCommentRoutes(r)
+	// routes.RegisterPostRoutes(r)
+	// routes.RegisterUserRoutes(r)
+	// routes.RegisterCommentRoutes(r)
 
-	r.Use(loggingMiddleware) /// use middleware
-	config.Connect()
+	// r.Use(loggingMiddleware)
+	// config.Connect()
+
+	r.HandleFunc("/", HomeHandler).Methods("GET")
 
 	port := goDotEnvVariable("PORT")
 	serverUrl := ":" + port
