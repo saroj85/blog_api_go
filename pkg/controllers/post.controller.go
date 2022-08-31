@@ -145,7 +145,5 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
-
-	// fmt.Println("DDD")
 	utils.UploadFile(w, r)
 }

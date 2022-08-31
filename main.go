@@ -5,14 +5,25 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/saroj85/blog_api_go/pkg/config"
 	"github.com/saroj85/blog_api_go/pkg/controllers"
 	"github.com/saroj85/blog_api_go/pkg/routes"
 	"github.com/saroj85/blog_api_go/pkg/utils"
 )
+
+func goDotEnvVariable(key string) string {
+	// load .env file
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+	return os.Getenv(key)
+}
 
 func HomeHandler(response http.ResponseWriter, request *http.Request) {
 	fmt.Fprintf(response, "Hello home")
@@ -78,7 +89,10 @@ func main() {
 	r.Use(loggingMiddleware) /// use middleware
 	config.Connect()
 
-	log.Fatal(http.ListenAndServe("localhost:8080", r)) // create a new server and listen on port
+	port := goDotEnvVariable("PORT")
+	serverUrl := ":" + port
+
+	log.Fatal(http.ListenAndServe(serverUrl, r)) // create a new server and listen on port
 }
 
 // func updateName(name *string) {

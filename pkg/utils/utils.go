@@ -108,7 +108,6 @@ func VerifyToken(token string) (*ClaimsStr, error) {
 	// Note that we are passing the key in this method as well. This method will return an error
 	// if the token is invalid (if it has expired according to the expiry time we set on sign in),
 	// or if the signature does not match
-
 	claims := &ClaimsStr{}
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return mySignature, nil
