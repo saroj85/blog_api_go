@@ -10,7 +10,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/saroj85/blog_api_go/pkg/config"
 	"github.com/saroj85/blog_api_go/pkg/controllers"
+	"github.com/saroj85/blog_api_go/pkg/routes"
 	"github.com/saroj85/blog_api_go/pkg/utils"
 )
 
@@ -82,12 +84,12 @@ func main() {
 	fmt.Println("App Initialized")
 
 	r := mux.NewRouter()
-	// routes.RegisterPostRoutes(r)
-	// routes.RegisterUserRoutes(r)
-	// routes.RegisterCommentRoutes(r)
+	routes.RegisterPostRoutes(r)
+	routes.RegisterUserRoutes(r)
+	routes.RegisterCommentRoutes(r)
 
-	// r.Use(loggingMiddleware)
-	// config.Connect()
+	r.Use(loggingMiddleware)
+	config.Connect()
 
 	r.HandleFunc("/", HomeHandler).Methods("GET")
 
