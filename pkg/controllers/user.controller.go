@@ -35,7 +35,6 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	connection := config.GetDb()
 
 	// defer config.CloseDb(connection)
-
 	var response ResponseStruct
 
 	var user models.User
@@ -127,7 +126,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 			var user_token UserToken
 			user_token.Token = token
-			user_token.User = models.User{Fullname: dbUser.Fullname, Email: dbUser.Email, Phone: dbUser.Phone}
+			user_token.User = models.User{Fullname: dbUser.Fullname, Email: dbUser.Email, Phone: dbUser.Phone, AvtarURL: dbUser.Phone}
 
 			response.Message = "Login successful"
 			response.Code = 200
@@ -158,11 +157,13 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	{
 		Fullname: string,
 		Mobile: Int,
-		Password: string
+		Password: string,
+		AvtarURL: string,
 	}
 
 
 **/
+
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Update user profile")
@@ -183,8 +184,6 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	FullName := user.Fullname
 
 	connection.Model(models.User{}).Where("id = ?", user.ID).Update("fullname", FullName)
-	fmt.Println("user.ID", user.ID)
-
 	w.Header().Set("Content-Type", "application/json")
 	response.Code = 200
 	response.Message = "User Updated Successfully"

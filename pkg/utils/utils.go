@@ -3,31 +3,25 @@ package utils
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func MiddlewareOne(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Middleware logic goes here...
-		fmt.Println("ENTER MiddlewareOne")
-		// next.ServeHTTP(w, r)
-	})
+func GetDotEnvVariable(key string) string {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+	return os.Getenv(key)
 }
 
-func CustomMiddleWare(h http.Handler) http.Handler {
-	// fmt.Println("middleware middle")
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("middleware", r.URL)
-		h.ServeHTTP(w, r)
-	})
-}
 func GenerateUniqueID() string {
 	uuidValue := uuid.New()
 	return uuidValue.String()
@@ -48,32 +42,30 @@ func ValidateHashPassword(hashedPassword, currPassword string) bool {
 	return err == nil
 }
 
-func UploadFile(w http.ResponseWriter, r *http.Request) {
+func UploadFile(r *http.Request) (string, error) {
 
-	// truncated for brevity
-	// The argument to FormFile must match the name attribute
-	// of the file input on the frontend
-	file, fileHeader, err := r.FormFile("myFile")
+	file, fileHeader, err := r.FormFile("my_image")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return "", err
 	}
-
 	defer file.Close()
 
-	// Create the uploads folder if it doesn't
-	// already exist
-	err = os.MkdirAll("../uploads", os.ModePerm)
+	err = os.MkdirAll("./uploads", os.ModePerm)
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return "", err
 	}
 
-	// Create a new file in the uploads directory
-	dst, err := os.Create(fmt.Sprintf("../uploads/%d%s", time.Now().UnixNano(), filepath.Ext(fileHeader.Filename)))
+	// real_file_name := fileHeader.Filename;
+
+	file_location := "./uploads/"
+	file_name := GenerateUniqueID() + filepath.Ext(fileHeader.Filename)
+	final_file_path := file_location + file_name
+
+	fmt.Println("file_name", file_name)
+	dst, err := os.Create(final_file_path)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return "", err
 	}
 
 	fmt.Println(dst)
@@ -83,11 +75,10 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// at the specified destination
 	_, err = io.Copy(dst, file)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		// http.Error(w, err.Error(), http.StatusInternalServerError)
+		return "", err
 	}
-
-	fmt.Fprintf(w, "Upload successful")
+	return file_name, nil
 }
 
 type ClaimsStr struct {
@@ -99,19 +90,14 @@ type ClaimsStr struct {
 
 const JwtSignature = "hmacSampleSecret"
 
-func VerifyToken(token string) (*ClaimsStr, error) {
+func VerifyToken(token string) (ClaimsStr, error) {
 
 	mySignature := []byte(JwtSignature)
-	// Verify and extract claims from a token:
-	// verifiedToken, err := jwt.Parse(token, jwt.SigningMethodHS256)
-	// Parse the JWT string and store the result in `claims`.
-	// Note that we are passing the key in this method as well. This method will return an error
-	// if the token is invalid (if it has expired according to the expiry time we set on sign in),
-	// or if the signature does not match
 	claims := &ClaimsStr{}
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return mySignature, nil
 	})
 
-	return claims, err
+	clm := *claims
+	return clm, err
 }

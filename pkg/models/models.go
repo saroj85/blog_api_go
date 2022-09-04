@@ -39,6 +39,7 @@ type User struct {
 	IsEmailVerified bool      `json:"is_email_verified"`
 	IsPhoneVerified bool      `json:"is_phone_verified"`
 	IsSuperUser     bool      `json:"is_super_user"`
+	AvtarURL        string    `json:"avtar_url"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
 }

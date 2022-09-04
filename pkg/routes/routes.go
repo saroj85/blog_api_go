@@ -19,7 +19,6 @@ var RegisterPostRoutes = func(router *mux.Router) {
 	router.HandleFunc("/posts", controllers.GetAllPost).Methods("GET")
 	router.HandleFunc("/post/{PostId}", controllers.GetPostById).Methods("GET")
 	router.HandleFunc("/post", controllers.CreatePost).Methods("POST")
-	router.HandleFunc("/post/file", controllers.UploadFile).Methods("POST")
 	router.HandleFunc("/post", controllers.UpdatePost).Methods("PUT")
 	router.HandleFunc("/post/{PostId}", controllers.DeletePost).Methods("DELETE")
 
@@ -29,5 +28,8 @@ var RegisterPostRoutes = func(router *mux.Router) {
 var RegisterCommentRoutes = func(router *mux.Router) {
 	router.HandleFunc("/post/comments/{PostID}", controllers.GetCommentsByPostID).Methods("GET")
 	router.HandleFunc("/post/comment", controllers.AddComment).Methods("POST")
+}
 
+var RegisterUploadRoutes = func(router *mux.Router) {
+	router.HandleFunc("/upload/image", controllers.UploadImage).Methods("POST")
 }

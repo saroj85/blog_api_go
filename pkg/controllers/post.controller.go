@@ -20,11 +20,11 @@ type ResponseStruct struct {
 }
 
 func GetAllPost(w http.ResponseWriter, r *http.Request) {
-	connection := config.GetDb()
-	// defer config.CloseDb(connection)
+	db := config.GetDb()
+	// defer config.CloseDb(db)
 
 	var post []models.Post
-	connection.Find(&post)
+	db.Find(&post)
 	w.Header().Set("Content-Type", "application/json")
 
 	var response ResponseStruct
@@ -34,20 +34,25 @@ func GetAllPost(w http.ResponseWriter, r *http.Request) {
 	response.Data = &post
 	json.NewEncoder(w).Encode(&response)
 
-	// fmt.Println("GET ALL POST", post)
-
 }
 
 func GetPostById(w http.ResponseWriter, r *http.Request) {
-	connection := config.GetDb()
+	db := config.GetDb()
 
-	// defer config.CloseDb(connection)
+	// defer config.CloseDb(db)
 
 	vars := mux.Vars(r)
+
 	postId := vars["PostId"]
 
 	var post models.Post
-	connection.Model(&post).Where("id=?", postId).Find(&post)
+	db.Model(&post).Where("id=?", postId).Find(&post)
+
+	// fmt.Println("post", post)
+	// if post.ID == "" {
+	// 	w.Header().Set("Content-Type", "application/json")
+	// 	json.NewEncoder(w).Encode("ds")
+	// }
 
 	var response ResponseStruct
 	response.Code = 200
@@ -61,24 +66,24 @@ func GetPostById(w http.ResponseWriter, r *http.Request) {
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
 
-	connection := config.GetDb()
+	db := config.GetDb()
+	user_id := r.Header.Get("user_id")
 
-	// defer config.CloseDb(connection)
-
+	fmt.Println("POST user_id", user_id)
 	var post models.Post // Post Object;
-
-	// var result map[string]interface{}
 
 	err := json.NewDecoder(r.Body).Decode(&post)
 
-	// fmt.Println(result["post"])
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(err)
+		json.NewEncoder(w).Encode("Somthing went wrong")
+
 	}
 
+	post.AuthorId = user_id
 	post.ID = utils.GenerateUniqueID()
-	connection.Create(&post)
+
+	db.Create(&post)
 	w.Header().Set("Content-Type", "application/json")
 	var response ResponseStruct
 	response.Code = 200
@@ -94,9 +99,8 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("UPDATE POST")
-	connection := config.GetDb()
 
-	// defer config.CloseDb(connection)
+	db := config.GetDb()
 
 	var post models.Post // Post Object;
 
@@ -106,7 +110,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(err)
 	}
-	connection.Model(models.Post{}).Where("id = ?", post.ID).Updates(&post)
+	db.Model(models.Post{}).Where("id = ?", post.ID).Updates(&post)
 
 	var response ResponseStruct
 	response.Code = 200
@@ -120,9 +124,9 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 
-	connection := config.GetDb()
+	db := config.GetDb()
 
-	// defer config.CloseDb(connection)
+	// defer config.CloseDb(db)
 
 	var post models.Post // Post Object;
 
@@ -130,9 +134,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	postId := vars["PostId"]
 	post.ID = postId
 
-	fmt.Println("DELETE POST", postId)
-
-	connection.Model(models.Post{}).Where("id=?", postId).Delete(&post)
+	db.Model(models.Post{}).Where("id=?", postId).Delete(&post)
 
 	var response ResponseStruct
 	response.Code = 200
@@ -142,8 +144,4 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&response)
 
-}
-
-func UploadFile(w http.ResponseWriter, r *http.Request) {
-	utils.UploadFile(w, r)
 }
