@@ -48,17 +48,19 @@ func GetPostById(w http.ResponseWriter, r *http.Request) {
 	var post models.Post
 	db.Model(&post).Where("id=?", postId).Find(&post)
 
-	// fmt.Println("post", post)
-	// if post.ID == "" {
-	// 	w.Header().Set("Content-Type", "application/json")
-	// 	json.NewEncoder(w).Encode("ds")
-	// }
-
 	var response ResponseStruct
 	response.Code = 200
-	response.Message = "Get Post By Id Success"
 	response.SentAt = time.Now()
-	response.Data = &post
+
+	if post.ID == "" {
+		response.Message = "No Post Found With ID"
+
+	} else {
+		response.Message = "Get Post By Id Success"
+		response.Data = &post
+
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&response)
 

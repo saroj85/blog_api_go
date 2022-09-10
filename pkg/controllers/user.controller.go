@@ -32,9 +32,9 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Register User")
 
-	connection := config.GetDb()
+	db := config.GetDb()
 
-	// defer config.CloseDb(connection)
+	// defer config.CloseDb(db)
 	var response ResponseStruct
 
 	var user models.User
@@ -48,7 +48,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	var dbUser models.User
 
-	connection.Model(models.User{}).Where("email=?", user.Email).First(&dbUser)
+	db.Model(models.User{}).Where("email=?", user.Email).First(&dbUser)
 
 	if dbUser.Email != "" {
 
@@ -67,7 +67,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	hashedPassword, _ := utils.HashPassword(user.Password)
 	user.HashPassword = hashedPassword
 
-	connection.Model(models.User{}).Create(&user)
+	db.Model(models.User{}).Create(&user)
 
 	token, _ := GeneratJwtToken(user.Email, user.Fullname, user.ID)
 	w.Header().Set("Content-Type", "application/json")
@@ -98,9 +98,9 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login User")
 
 	var response ResponseStruct
-	connection := config.GetDb()
+	db := config.GetDb()
 
-	// defer config.CloseDb(connection)
+	// defer config.CloseDb(db)
 
 	var user models.User
 
@@ -112,7 +112,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	var dbUser models.User
 
-	connection.Model(models.User{}).Where("email = ?", user.Email).Find(&dbUser)
+	db.Model(models.User{}).Where("email = ?", user.Email).Find(&dbUser)
 
 	if dbUser.Email != "" {
 
@@ -168,9 +168,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Update user profile")
 
-	var response ResponseStruct
-
-	connection := config.GetDb()
+	db := config.GetDb()
 
 	var user models.User
 
@@ -183,12 +181,23 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	FullName := user.Fullname
 
-	connection.Model(models.User{}).Where("id = ?", user.ID).Update("fullname", FullName)
+	db.Model(models.User{}).Where("id = ?", user.ID).Update("fullname", FullName)
+
+	fmt.Println("goo here")
+
 	w.Header().Set("Content-Type", "application/json")
-	response.Code = 200
-	response.Message = "User Updated Successfully"
-	response.SentAt = time.Now()
-	json.NewEncoder(w).Encode(&response)
+
+	// var response ResponseStruct
+	// response.Code = 200
+	// response.Message = "User Updated Successfully"
+	// response.SentAt = time.Now()
+	// json.NewEncoder(w).Encode(&response)
+
+	// response.Code = 200
+	// response.Message = "User Updated Successfully"
+	// response.SentAt = time.Now()
+	json.NewEncoder(w).Encode("sdd")
+	json.NewEncoder(w).Encode("Somthing went wrong")
 
 }
 
