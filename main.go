@@ -84,7 +84,7 @@ func main() {
 
 	r.HandleFunc("/", HomeHandler).Methods("GET")
 
-	port := utils.GetDotEnvVariable("PORT")
+	port := "8080" //utils.GetDotEnvVariable("PORT")
 
 	serverUrl := ":" + port
 
