@@ -20,3 +20,8 @@
 
 # Go workspace file
 go.work
+
+
+# dotenv environment variables file
+.env
+prod.env
