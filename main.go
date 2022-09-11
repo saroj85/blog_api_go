@@ -84,9 +84,9 @@ func main() {
 
 	r.HandleFunc("/", HomeHandler).Methods("GET")
 
-	port := "8080" //utils.GetDotEnvVariable("PORT")
+	port := utils.GetDotEnvVariable("PORT")
 
 	serverUrl := ":" + port
-	fmt.Println("PORT IS", port)
+	fmt.Println("APP RUNNING ON PORT:", port)
 	log.Fatal(http.ListenAndServe(serverUrl, r)) // create a new server and listen on port
 }
